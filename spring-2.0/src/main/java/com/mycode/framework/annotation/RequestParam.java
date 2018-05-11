@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * 请求参数映射
- * Created by 江富 on 2018/4/25
+ * Created by 蛮小江 on 2018/4/25
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

@@ -2,7 +2,7 @@ package com.mycode.demo.service;
 
 /**
  * 增删改业务
- * Created by 江富 on 2018/4/29
+ * Created by 蛮小江 on 2018/4/29
  */
 public interface IModifyService {
     /**
@@ -27,4 +27,6 @@ public interface IModifyService {
      * @return
      */
     String remove(Integer id);
+
+
 }

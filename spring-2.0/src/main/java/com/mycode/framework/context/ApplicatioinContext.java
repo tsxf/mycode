@@ -4,6 +4,7 @@ import com.mycode.demo.action.MyAction;
 import com.mycode.framework.annotation.Autowired;
 import com.mycode.framework.annotation.Controller;
 import com.mycode.framework.annotation.Service;
+import com.mycode.framework.aop.AopConfig;
 import com.mycode.framework.beans.BeanDefinition;
 import com.mycode.framework.beans.BeanPostProcessor;
 import com.mycode.framework.beans.BeanWrapper;
@@ -12,13 +13,16 @@ import com.mycode.framework.core.BeanFactory;
 import jdk.internal.org.objectweb.asm.tree.IincInsnNode;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Created by 江富 on 2018/4/25
+ * Created by 蛮小江 on 2018/4/25
  */
-public class ApplicatioinContext implements BeanFactory {
+public class ApplicatioinContext extends DefaultListableBeanFactory implements BeanFactory {
 
 
     //存放配置文件路径
@@ -27,8 +31,6 @@ public class ApplicatioinContext implements BeanFactory {
     //读取，加载配置文件
     private BeanDefinitionReader reader;
 
-    //beanDefinitioinMap用来存放配置信息
-    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
 
     //用来保证注册时单例的容器
     private Map<String, Object> beanCacheMap = new HashMap<String, Object>();
@@ -69,14 +71,15 @@ public class ApplicatioinContext implements BeanFactory {
             String beanName = beanDefinitionEntry.getKey();
             if (!beanDefinitionEntry.getValue().isLazyInit()) {
                 //进行初始化，获取bean对象
-                getBean(beanName);
+                Object bean = getBean(beanName);
+                System.out.println(bean.getClass());
             }
         }
 
-      /*  //类中的属性进行自动注入
+    /*    //类中的属性进行自动注入
         for (Map.Entry<String, BeanWrapper> beanWrapperEntry : this.beanWrapperMap.entrySet()) {
 
-            populalteBean(beanWrapperEntry.getKey(), beanWrapperEntry.getValue().getWrapperInstance());
+            populalteBean(beanWrapperEntry.getKey(), beanWrapperEntry.getValue().getOriginalInstance());
         }*/
     }
 
@@ -115,7 +118,7 @@ public class ApplicatioinContext implements BeanFactory {
                     dependInstance = dependBeanWrapper.getWrapperInstance();
                 }
 
-                System.out.println("=================instance:" + instance + ",autoWiredBeanName:" + autoWiredBeanName + "," + this.beanWrapperMap.get(autoWiredBeanName) + ",dependInstance:" + dependInstance);
+                //   System.out.println("=================instance:" + instance + ",autoWiredBeanName:" + autoWiredBeanName + "," + this.beanWrapperMap.get(autoWiredBeanName) + ",dependInstance:" + dependInstance);
 
                 filed.set(instance, dependInstance);
             } catch (IllegalAccessException e) {
@@ -178,34 +181,80 @@ public class ApplicatioinContext implements BeanFactory {
             return beanWrapperMap.get(beanName).getWrapperInstance();
         }
 
-        BeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
-        String className = beanDefinition.getBeanClassName();
+        try {
 
-        //生成通知事件
-        BeanPostProcessor beanPostProcessor = new BeanPostProcessor();
+            BeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
+            String className = beanDefinition.getBeanClassName();
 
-        Object instance = instanionBean(beanDefinition);
-        if (null == instance) {
-            return null;
+            //生成通知事件
+            BeanPostProcessor beanPostProcessor = new BeanPostProcessor();
+
+            Object instance = instanionBean(beanDefinition);
+            if (null == instance) {
+                return null;
+            }
+
+            //在实例初始化以前调用一次
+            beanPostProcessor.postProcessBeforeInitialization(instance, beanName);
+
+            //进行包装
+            BeanWrapper beanWrapper = new BeanWrapper(instance);
+            beanWrapper.setAopConfig(instanionAopConfig(beanDefinition));
+            beanWrapper.setPostProcessor(beanPostProcessor);
+            this.beanWrapperMap.put(beanName, beanWrapper);
+
+            //依赖注入
+            populalteBean(beanName, instance);
+
+            //在实例初始化以后调用一次
+            beanPostProcessor.postProcessAfterInitialization(instance, beanName);
+
+            //通过这样一调用，相当于给我们自己留下了可操作的空间
+            return this.beanWrapperMap.get(beanName).getWrapperInstance();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+    /**
+     * 设置切面
+     *
+     * @param instance
+     * @return
+     * @throws Exception
+     */
+    private AopConfig instanionAopConfig(BeanDefinition instance) throws Exception {
+        //满足pointCut的切点放入aopConfig中
+        AopConfig aopConfig = new AopConfig();
+
+        String className = instance.getBeanClassName();
+        Class<?> clazz = Class.forName(className);
+        //取出配置文件中关于aop的参数设置
+        //切点
+        //com.mycode.demo.service.impl.ModifyService add(String name, String addr)
+        //public java.lang.String com.mycode.demo.service.impl.ModifyService.add(java.lang.String,java.lang.String)
+        //public .* com\.mycode\.demo\.service\..*Service\..*\(.*\)
+
+        String pointCunt = reader.getConfig().getProperty("pointCunt");
+        //方法before,after
+        String before = reader.getConfig().getProperty("aspectBefore").split("\\s")[1];
+        String after = reader.getConfig().getProperty("aspectAfter").split("\\s")[1];
+        //切面className
+        String aspectClassName = reader.getConfig().getProperty("aspectAfter").split("\\s")[0];
+        //满足规则放入aopConfig中，method是原始的method
+        Class<?> aspectClass = Class.forName(aspectClassName);
+        Pattern pattern = Pattern.compile(pointCunt);
+        for (Method method : clazz.getMethods()) {
+            Matcher matcher = pattern.matcher(method.toString());
+            if (matcher.matches()) {
+                aopConfig.put(method, aspectClass.newInstance(), new Method[]{aspectClass.getMethod(before), aspectClass.getMethod(after)});
+            }
         }
 
-        //在实例初始化以前调用一次
-        beanPostProcessor.postProcessBeforeInitialization(instance, beanName);
-
-        //进行包装
-        BeanWrapper beanWrapper = new BeanWrapper(instance);
-        beanWrapper.setPostProcessor(beanPostProcessor);
-        this.beanWrapperMap.put(beanName, beanWrapper);
-
-        //依赖注入
-        populalteBean(beanName, instance);
-
-        //在实例初始化以后调用一次
-        beanPostProcessor.postProcessAfterInitialization(instance, beanName);
-
-
-        //通过这样一调用，相当于给我们自己留下了可操作的空间
-        return this.beanWrapperMap.get(beanName).getWrapperInstance();
+        return aopConfig;
     }
 
     /**

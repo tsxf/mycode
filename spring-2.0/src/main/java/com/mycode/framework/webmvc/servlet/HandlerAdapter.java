@@ -2,12 +2,13 @@ package com.mycode.framework.webmvc.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by 江富 on 2018/4/30
+ * Created by 蛮小江 on 2018/4/30
  */
 //专人干专事
 public class HandlerAdapter {
@@ -65,7 +66,10 @@ public class HandlerAdapter {
         }
 
         //4.从handler中取出controller，method 利用反射机制进行调用
-        Object result = handlerMapping.getMethod().invoke(handlerMapping.getController(), paramValues);
+        Method method = handlerMapping.getMethod();
+        Object controller = handlerMapping.getController();
+        Object result = method.invoke(controller, paramValues);
+       // Object result = handlerMapping.getMethod().invoke(handlerMapping.getController(), paramValues);
         if (result == null) {
             return null;
         }

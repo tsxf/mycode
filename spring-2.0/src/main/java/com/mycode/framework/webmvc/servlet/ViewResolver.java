@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  * 视图解析器，匹配过来的ModelAndView，解析页面，响应成字符串
- * Created by 江富 on 2018/4/30
+ * Created by 蛮小江 on 2018/4/30
  */
 public class ViewResolver {
     //设置这个类的主要目的是，

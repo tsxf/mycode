@@ -1,7 +1,7 @@
 package com.mycode.framework.core;
 
 /**
- * Created by 江富 on 2018/4/25
+ * Created by 蛮小江 on 2018/4/25
  */
 public interface BeanFactory {
     /**

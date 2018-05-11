@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Created by 江富 on 2018/4/25
+ * Created by 蛮小江 on 2018/4/25
  */
 //用于对配置文件，进行查找，读取和解析
 public class BeanDefinitionReader {

@@ -3,6 +3,7 @@ package com.mycode.framework.webmvc.servlet;
 import com.mycode.framework.annotation.Controller;
 import com.mycode.framework.annotation.RequestMapping;
 import com.mycode.framework.annotation.RequestParam;
+import com.mycode.framework.aop.AopProxyUtils;
 import com.mycode.framework.context.ApplicatioinContext;
 
 import javax.servlet.ServletConfig;
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
 
 /**
  * Servlet作为一个MVC启动的如入口，在spring中是通过ApplicationContextAware回调
- * Created by 江富 on 2018/4/25
+ * Created by 蛮小江 on 2018/4/25
  */
 
 
@@ -44,15 +45,15 @@ public class DispatcherServlet extends HttpServlet {
 
         //处理页面请求，分发调度，返回内容响应
 
-        try{
-             doDispatch(req,resp);
-        }catch (Exception e){
+        try {
+            doDispatch(req, resp);
+        } catch (Exception e) {
             //异常栈输出到页面
             StringBuilder sb = new StringBuilder();
-            sb.append( "<font size= '50' color='blue'>500 Exception </font><br/>");
-            sb.append( "Details:<br/>");
-            sb.append( Arrays.toString(e.getStackTrace()).replaceAll("\\[|\\]","").replaceAll("\\s","\r\n"));
-            sb.append( "<font color='green'><i>Copyright@黑夜的眼睛</font>");
+            sb.append("<font size= '50' color='blue'>500 Exception </font><br/>");
+            sb.append("Details:<br/>");
+            sb.append(Arrays.toString(e.getStackTrace()).replaceAll("\\[|\\]", "").replaceAll("\\s", "\r\n"));
+            sb.append("<font color='green'><i>Copyright@黑夜的眼睛</font>");
             resp.getWriter().write(sb.toString());
             e.printStackTrace();
         }
@@ -60,10 +61,10 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        
+
         //根据用户请求的url来获得一个handler
         HandlerMapping handlerMapping = getHanler(req);
-        if(handlerMapping == null){
+        if (handlerMapping == null) {
             //错误提示
             resp.getWriter().write("<font size='25' color='red'>404 Not Fount</font></br><font color='green'><i>Copyright@黑夜的眼睛</font>");
             return;
@@ -77,26 +78,26 @@ public class DispatcherServlet extends HttpServlet {
 
 
         //这里才是真正的输出
-        processDispatchResult(resp,modelAndView);
+        processDispatchResult(resp, modelAndView);
     }
 
     private void processDispatchResult(HttpServletResponse resp, ModelAndView modelAndView) throws Exception {
         //调用viewResolver的resolverView方法
-        if(modelAndView == null){
+        if (modelAndView == null) {
             return;
         }
-        if(this.viewResolvers.isEmpty()){
+        if (this.viewResolvers.isEmpty()) {
             return;
         }
         for (ViewResolver viewResolver : viewResolvers) {
             //判断是否含有传过来的modelAndView
-            if(!modelAndView.getViewName().equals(viewResolver.getViewName())){
+            if (!modelAndView.getViewName().equals(viewResolver.getViewName())) {
                 continue;
             }
 
             //通过视图解析器把页面请求地址转换到项目路径文件中，同时替换里面的表达式，返回一个字符串，再响应给页面
             String content = viewResolver.viewResolver(modelAndView);
-            if(content!=null){
+            if (content != null) {
                 resp.getWriter().write(content);
                 break;
             }
@@ -106,28 +107,28 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private HandlerAdapter getHandlerAdapter(HandlerMapping handlerMapping) {
-        if(handlerAdapter.isEmpty()){
-            return  null;
+        if (handlerAdapter.isEmpty()) {
+            return null;
         }
-        return  handlerAdapter.get(handlerMapping);
+        return handlerAdapter.get(handlerMapping);
     }
 
     private HandlerMapping getHanler(HttpServletRequest req) {
-        if(this.handlerMappings.isEmpty()){
-            return  null;
+        if (this.handlerMappings.isEmpty()) {
+            return null;
         }
         String url = req.getRequestURI();
         String contextPath = req.getContextPath();
-        url = url.replace(contextPath,"").replaceAll("/+","/");
+        url = url.replace(contextPath, "").replaceAll("/+", "/");
 
-        for(HandlerMapping handlerMapping :handlerMappings){
+        for (HandlerMapping handlerMapping : handlerMappings) {
             Matcher matcher = handlerMapping.getPattern().matcher(url);
-            if(!matcher.matches()){
+            if (!matcher.matches()) {
                 continue;
             }
-            return  handlerMapping;
+            return handlerMapping;
         }
-        return  null;
+        return null;
 
     }
 
@@ -137,7 +138,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     /**
-     *  启动容器，初始化9大组件
+     * 启动容器，初始化9大组件
      */
     public void init(ServletConfig config) throws ServletException {
         ApplicatioinContext context = new ApplicatioinContext(config.getInitParameter(CONTEXT_CONFIG_LOCATIONI));
@@ -198,7 +199,6 @@ public class DispatcherServlet extends HttpServlet {
     }
 
 
-
     //自己实现
     //将Controller中配置的RequestMpaping和Method进行一一对应
     private void initHandlerMappings(ApplicatioinContext context) {
@@ -206,43 +206,49 @@ public class DispatcherServlet extends HttpServlet {
         //Map<String,Method> map;
         //map.put(url,Method) 通过封装一个新的对象，url模式可以设置成支持正则
 
-        String[] beanDefinitionNames = context.getBeanDefinitionNames();
-        for (String beanNam : beanDefinitionNames) {
-            Object controller = context.getBean(beanNam);
-            Class<?> clazz = controller.getClass();
-            //不是所有牛奶都叫特仑苏
-            if (!clazz.isAnnotationPresent(Controller.class)) {
-                continue;
-            }
+        try {
 
-            String baseUrl = "";
-
-            if (clazz.isAnnotationPresent(RequestMapping.class)) {
-                RequestMapping requestMapping = clazz.getAnnotation(RequestMapping.class);
-                baseUrl = requestMapping.value().trim();
-            }
-
-            //扫描下面所有的公共方法
-            Method[] methods = clazz.getMethods();
-            for (Method method : methods) {
-                if (!method.isAnnotationPresent(RequestMapping.class)) {
+            //判断用原始目标对象，注入用代理对象
+            String[] beanDefinitionNames = context.getBeanDefinitionNames();
+            for (String beanNam : beanDefinitionNames) {
+                //这里是包装过的代理对象
+                Object controller = context.getBean(beanNam);
+                //原始对象信息
+                Object targetObject = AopProxyUtils.getTargetObject(controller);
+                Class<?> clazz = targetObject.getClass();
+                //不是所有牛奶都叫特仑苏
+                if (!clazz.isAnnotationPresent(Controller.class)) {
                     continue;
                 }
 
-                RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-                String regex = ("/" + baseUrl + requestMapping.value().trim()).replaceAll("\\*", ".*").replaceAll("/+", "/");
-                Pattern pattern = Pattern.compile(regex);
-                handlerMappings.add(new HandlerMapping(controller, method, pattern));
-                System.out.println("Mapping:" + regex + "," + method);
+                String baseUrl = "";
+
+                if (clazz.isAnnotationPresent(RequestMapping.class)) {
+                    RequestMapping requestMapping = clazz.getAnnotation(RequestMapping.class);
+                    baseUrl = requestMapping.value().trim();
+                }
+
+                //扫描下面所有的公共方法
+                Method[] methods = clazz.getMethods();
+                for (Method method : methods) {
+                    if (!method.isAnnotationPresent(RequestMapping.class)) {
+                        continue;
+                    }
+
+                    RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+                    String regex = ("/" + baseUrl + requestMapping.value().trim()).replaceAll("\\*", ".*").replaceAll("/+", "/");
+                    Pattern pattern = Pattern.compile(regex);
+                    handlerMappings.add(new HandlerMapping(targetObject, method, pattern));
+                    System.out.println("Mapping:" + regex + "," + method);
+                }
+
+
             }
-
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-
     }
-
-
 
 
     //自己实现
@@ -256,12 +262,12 @@ public class DispatcherServlet extends HttpServlet {
 
             //这里只是命名参数
             Annotation[][] parameterAnnotations = handlerMapping.getMethod().getParameterAnnotations();
-            for(int i = 0 ;i < parameterAnnotations.length ; i++){
-                for(Annotation a :parameterAnnotations[i]){
-                    if(a instanceof  RequestParam){
+            for (int i = 0; i < parameterAnnotations.length; i++) {
+                for (Annotation a : parameterAnnotations[i]) {
+                    if (a instanceof RequestParam) {
                         String paramName = ((RequestParam) a).value();
-                        if(!"".equals(paramName)){
-                            paramMapping.put(paramName,i);
+                        if (!"".equals(paramName)) {
+                            paramMapping.put(paramName, i);
                         }
                     }
                 }
@@ -271,18 +277,17 @@ public class DispatcherServlet extends HttpServlet {
             //接下来，我们处理非命名参数
             //只处理Request和Response
             Class<?>[] parameterTypes = handlerMapping.getMethod().getParameterTypes();
-            for(int i = 0; i<parameterTypes.length;i++){
+            for (int i = 0; i < parameterTypes.length; i++) {
                 Class<?> type = parameterTypes[i];
-                if(type ==HttpServletResponse.class || type == HttpServletRequest.class){
+                if (type == HttpServletResponse.class || type == HttpServletRequest.class) {
                     paramMapping.put(type.getName(), i);
                 }
             }
 
 
-               this.handlerAdapter.put(handlerMapping,new HandlerAdapter(paramMapping));
+            this.handlerAdapter.put(handlerMapping, new HandlerAdapter(paramMapping));
 
         }
-
 
 
     }

@@ -1,7 +1,7 @@
 package com.mycode.framework.beans;
 
 /**
- * Created by 江富 on 2018/4/25
+ * Created by 蛮小江 on 2018/4/25
  */
 //用来存储配置文件中的信息
 //相当于保存在内存中的配置

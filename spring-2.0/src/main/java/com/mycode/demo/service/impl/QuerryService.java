@@ -7,10 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by 江富 on 2018/4/29
+ * Created by 蛮小江 on 2018/4/29
  */
 @Service
-public class QuerryServiceService implements IQuerryService {
+public class QuerryService implements IQuerryService {
     @Override
     public String querry(String name) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -20,8 +20,10 @@ public class QuerryServiceService implements IQuerryService {
     }
 
     public static void main(String[] args) {
-        QuerryServiceService querryService = new QuerryServiceService();
+        QuerryService querryService = new QuerryService();
         String querry = querryService.querry("陈超");
         System.out.println(querry);
     }
+
+
 }

@@ -4,7 +4,7 @@ import com.mycode.demo.service.IModifyService;
 import com.mycode.framework.annotation.Service;
 
 /**
- * Created by 江富 on 2018/4/29
+ * Created by 蛮小江 on 2018/4/29
  */
 @Service
 public class ModifyService implements IModifyService{
@@ -36,4 +36,6 @@ public class ModifyService implements IModifyService{
     public String remove(Integer id) {
         return "modifyService remove,id="+id;
     }
+
+
 }

@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
 /**对请求的url映射contorller，封装成对象，支持正则匹配
- * Created by 江富 on 2018/4/30
+ * Created by 蛮小江 on 2018/4/30
  */
 public class HandlerMapping {
     private Object controller;

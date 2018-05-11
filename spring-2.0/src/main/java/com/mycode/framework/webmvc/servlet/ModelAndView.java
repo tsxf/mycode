@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * 模型视图
- * Created by 江富 on 2018/4/30
+ * Created by 蛮小江 on 2018/4/30
  */
 public class ModelAndView {
     private  String viewName;

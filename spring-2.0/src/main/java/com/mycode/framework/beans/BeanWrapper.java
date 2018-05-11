@@ -1,7 +1,14 @@
 package com.mycode.framework.beans;
 
+import com.mycode.framework.aop.AopConfig;
+import com.mycode.framework.aop.AopProxy;
+import sun.misc.ProxyGenerator;
+
+import java.io.FileOutputStream;
+import java.lang.reflect.Proxy;
+
 /**
- * Created by 江富 on 2018/4/25
+ * Created by 蛮小江 on 2018/4/25
  */
 public class BeanWrapper {
     //还会用到观察者模式
@@ -12,10 +19,28 @@ public class BeanWrapper {
     //原始的通过反射new出来，要把包装起来，存下来
     private Object originalInstance;
 
+    //初始化代理类
+    private  AopProxy aopProxy = new AopProxy();
 
     public BeanWrapper(Object instance) {
         this.originalInstance = instance;
-        this.wrapperInstance = instance;
+        this.wrapperInstance = aopProxy.getProxy(instance);
+
+        try {
+            generateProxyClass();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void  generateProxyClass() throws  Exception{
+        byte[] classFile = ProxyGenerator.generateProxyClass("com.sun.proxy.$Proxy23", originalInstance.getClass().getInterfaces());
+        FileOutputStream out = new FileOutputStream("com.sun.proxy.$Proxy23.class");
+        out.write(classFile);
+        out.flush();
+
+
     }
 
     public BeanPostProcessor getPostProcessor() {
@@ -48,6 +73,13 @@ public class BeanWrapper {
 
     public void setOriginalInstance(Object originalInstance) {
         this.originalInstance = originalInstance;
+    }
+
+    /**
+     * 设置Aop切面配置信息
+     */
+    public void setAopConfig(AopConfig aopConfig){
+        aopProxy.setAopConfig(aopConfig);
     }
 
 

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Created by 江富 on 2018/4/29
+ * Created by 蛮小江 on 2018/4/29
  */
 @Controller
 @RequestMapping("/web")
@@ -59,5 +59,6 @@ public class MyAction {
         }
 
     }
+
 
 }

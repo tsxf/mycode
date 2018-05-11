@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by 江富 on 2018/4/29
+ * Created by 蛮小江 on 2018/4/29
  */
 @Controller
 @RequestMapping("/")
@@ -29,4 +29,6 @@ public class PageAction {
         return new ModelAndView("first.html", model);
 
     }
+
+
 }
