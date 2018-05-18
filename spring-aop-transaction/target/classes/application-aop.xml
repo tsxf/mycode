@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+    <!--强制使用Cglib动态代理,注解驱动加上这句话-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!---配置事务通知属性-->
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="add*" propagation="REQUIRED" rollback-for="Exception,RuntimeException,SQLException"/>
+            <tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception,RuntimeException,SQLException"/>
+            <tx:method name="edit*" propagation="REQUIRED" rollback-for="Exception,RuntimeException,SQLException"/>
+            <tx:method name="login" propagation="NOT_SUPPORTED"/>
+            <!-- 这句话的意思就是说，不要进行commit操作，不要进行rollback操作  -->
+            <tx:method name="query*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionPointcut"/>
+        <aop:aspect ref="dataSource">
+            <aop:pointcut id="transactionPointcut" expression="execution(public * com..*.service..*(..))" />
+        </aop:aspect>
+    </aop:config>
+
+
+    <!-- &lt;!&ndash;配置切面&ndash;&gt;
+     <bean id="xmlAspect" class="com.mycode.aop.aspect.XmlAsepect"/>
+     &lt;!&ndash;-Aop配置&ndash;&gt;
+     <aop:config>
+         &lt;!&ndash;声明一个切面，并注入切面Bean，相当于@Aspect&ndash;&gt;
+         <aop:aspect ref="xmlAspect">
+             &lt;!&ndash;配置一个切入点，相当于@PointCut&ndash;&gt;
+             <aop:pointcut id="simplePointCut" expression="execution(* com.mycode.aop.service..*(..))"></aop:pointcut>
+             &lt;!&ndash;配置通知，相当于@Before,@After,@AfterReturn,@Around,@AfterThrowing&ndash;&gt;
+             <aop:before pointcut-ref="simplePointCut" method="before"/>
+             <aop:around pointcut-ref="simplePointCut" method="around"/>
+             <aop:after pointcut-ref="simplePointCut" method="after"/>
+             <aop:after-returning pointcut-ref="simplePointCut" method="afterReturn"/>
+             <aop:after-throwing pointcut-ref="simplePointCut" method="afterThrow" throwing="e"/>
+         </aop:aspect>
+
+     </aop:config>
+ -->
+</beans>
