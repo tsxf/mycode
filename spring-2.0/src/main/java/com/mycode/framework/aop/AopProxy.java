@@ -36,7 +36,28 @@ public class AopProxy implements InvocationHandler {
             aspect.getMethods()[0].invoke(aspect.getAspect());
         }
 
-        Object result = method.invoke(target, args);
+        //根据方法名字判断开启的数据库事务类型
+        //查询 readOnly,其他 自动提交关闭
+        //根据正则去匹配  定义规则
+
+        //开启事务
+
+        Object result = null;
+        try {
+            result = method.invoke(target, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Class<? extends Exception> exceptionClass = e.getClass();
+            Class<?>[] exceptionTypes = method.getExceptionTypes();
+            //自定义异常类型
+            for (Class<? > clazz:exceptionTypes){
+                if (exceptionClass == clazz ) {
+                    //回滚
+                }
+            }
+
+
+        }
 
         System.out.println(result);
 
@@ -47,6 +68,7 @@ public class AopProxy implements InvocationHandler {
             aspect.getMethods()[1].invoke(aspect.getAspect());
         }
 
+        //事务关闭
 
         return result;
     }
