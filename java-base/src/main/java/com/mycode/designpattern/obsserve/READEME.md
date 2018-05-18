@@ -1,0 +1,7 @@
+simple包下面是简单的例子
+
+real包下面是用jdk工具包里面提供的Observer和Observable
+
+event包下面是用事件驱动模式强行改变的观察者模式
+
+mouse包下面是基于事件驱动模式写的一个button按钮有三种事件，单击提交，双击，鼠标移动

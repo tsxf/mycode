@@ -1,0 +1,76 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   StaticDispatch.java
+
+package com.mycode.reflect;
+
+import java.io.PrintStream;
+
+public class StaticDispatch
+{
+    class Woman extends Humnan
+    {
+
+        final StaticDispatch this$0;
+
+        Woman()
+        {
+            this$0 = StaticDispatch.this;
+            super();
+        }
+    }
+
+    class Man extends Humnan
+    {
+
+        final StaticDispatch this$0;
+
+        Man()
+        {
+            this$0 = StaticDispatch.this;
+            super();
+        }
+    }
+
+    abstract class Humnan
+    {
+
+        final StaticDispatch this$0;
+
+        Humnan()
+        {
+            this$0 = StaticDispatch.this;
+            super();
+        }
+    }
+
+
+    public StaticDispatch()
+    {
+    }
+
+    public void hello(Humnan humnan)
+    {
+        System.out.println("hello, Humnan");
+    }
+
+    public void hello(Man man)
+    {
+        System.out.println("hello, Man");
+    }
+
+    public void hello(Woman woman)
+    {
+        System.out.println("hello, Woman");
+    }
+
+    public static void main(String args[])
+    {
+        Man man = (new StaticDispatch()). new Man();
+        Woman woman = (new StaticDispatch()). new Woman();
+        StaticDispatch staticdispatch = new StaticDispatch();
+        staticdispatch.hello(man);
+        staticdispatch.hello(woman);
+    }
+}

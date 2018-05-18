@@ -1,0 +1,38 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   BizHandler.java
+
+package com.mycode.reflect.proxy;
+
+import java.io.PrintStream;
+import java.lang.reflect.*;
+
+// Referenced classes of package com.mycode.reflect.proxy:
+//            Client, TargetService, Target
+
+public class BizHandler
+    implements InvocationHandler
+{
+
+    public BizHandler(Target target)
+    {
+        this.target = target;
+    }
+
+    public TargetService getProxy()
+    {
+        return (TargetService)Proxy.newProxyInstance(com/mycode/reflect/proxy/Client.getClassLoader(), target.getClass().getInterfaces(), this);
+    }
+
+    public Object invoke(Object proxy, Method method, Object args[])
+        throws Throwable
+    {
+        System.out.println("=====A======");
+        Object invoke = method.invoke(target, args);
+        System.out.println("=====B======");
+        return invoke;
+    }
+
+    private Target target;
+}
