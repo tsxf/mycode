@@ -11,7 +11,7 @@ import java.util.Observable;
  * @Modify Who          When                        What
  * --------   -----------  ---------------------------------------------------
  */
-public class Writer extends Observable{
+public class Writer extends Observable {
     //作者的名字
     private String name;
     private String lastNovel;//记录作者最新发布的小说
@@ -24,9 +24,9 @@ public class Writer extends Observable{
         WriterManger.getInstance().add(this);
     }
 
-    public void addNovel(String novle){
-        System.out.println(name+" 发布了新书《"+novle+"》！");
-        this.lastNovel = novle;
+    public void addNovel(String novel) {
+        System.out.println(name + " 发布了新书《" + novel + "》！");
+        this.lastNovel = novel;
         //设置被观察者已经发生变化
         setChanged();
         //通知观察者

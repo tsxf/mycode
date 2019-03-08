@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  http://code.alibabatech.com/schema/dubbo  http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!--配置dubbo項目，作者信息-->
+    <dubbo:application name="${application.name}" owner="${dubbo.application.owner}"/>
+    <!--配置dubbo序列化，端口，访问控制日志信息-->
+    <dubbo:protocol name="dubbo" port="${dubbo.service.provider.port}" accesslog="${dubbo.protocol.accesslog}"/>
+    <!--配置dubbo注册中心及缓存信息-->
+    <dubbo:registry protocol="zookeeper" address="${dubbo.zk.servers}" group="${dubbo.zk.group}"
+                    file="${dubbo.cache.dir}/user-service.cache"/>
+</beans>

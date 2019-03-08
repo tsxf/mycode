@@ -14,10 +14,12 @@ import java.util.List;
  */
 public class Observable {
     List<Observer> observerList = new ArrayList<>();
-    public void add(Observer observer){
+
+    public void add(Observer observer) {
         observerList.add(observer);
     }
-    public  void changed(){
+
+    public void changed() {
         System.out.println("我是被观察者，我已经发生了变化了");
         //通知观察自己的所有观察者
         notifyObservers();

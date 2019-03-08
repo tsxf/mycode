@@ -1,7 +1,4 @@
 package com.mycode.reflect.proxy.jdk;
-
-import sun.misc.ProxyGenerator;
-
 import java.io.FileOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -23,10 +20,10 @@ public class BizHandler implements InvocationHandler {
     }
 
     public void generateProxyClass() throws  Exception{
-        byte[] classFile = ProxyGenerator.generateProxyClass("com.sun.proxy.$Proxy.1", target.getClass().getInterfaces());
+     /*   byte[] classFile = ProxyGenerator.generateProxyClass("com.sun.proxy.$Proxy.1", target.getClass().getInterfaces());
         FileOutputStream out = new FileOutputStream("com.sun.proxy.$Proxy.1.class");
         out.write(classFile);
-        out.flush();
+        out.flush();*/
 
 
     }
