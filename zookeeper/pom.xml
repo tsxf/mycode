@@ -25,7 +25,7 @@
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
       <!---3.4.9-->
-      <version>3.4.8</version>
+      <version>3.4.14</version>
     </dependency>
     <!--基于zookeeper原生api的第三方jar-->
     <dependency>
